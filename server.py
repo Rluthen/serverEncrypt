@@ -3,6 +3,7 @@ import logging
 import nacl.secret
 import nacl.utils
 import nacl.pwhash
+from nacl.signing import SigningKey
 
 class S(BaseHTTPRequestHandler):
     def _set_response(self):
@@ -22,10 +23,21 @@ class S(BaseHTTPRequestHandler):
         box = nacl.secret.SecretBox(key)
         encrypted = box.encrypt(bytes(post_data.decode('utf-8'), 'utf-8'))
         logging.info("POST request,\nPath: %s\nHeaders:\n%s\n\nBody:\n%s\n\nEncrypted Body:\n%s\n",
-                str(self.path), str(self.headers), post_data.decode('utf-8'), encrypted.ciphertext)
+            str(self.path), str(self.headers), post_data.decode('utf-8'), encrypted.ciphertext)
+
+        f = open("encrypted.txt", "w")
+
+        signing_key = SigningKey.generate()
+        signed = signing_key.sign(encrypted.ciphertext)
+
+        f.write(signed)
+        f.close()
+        
+        verify_key = signing_key.verify_key
+        verify_key_bytes = verify_key.encode()
 
         self._set_response()
-        self.wfile.write("{}".format(encrypted).encode('utf-8'))
+        self.wfile.write(verify_key_bytes)
 
 def run(server_class=HTTPServer, handler_class=S, port=8080):
     logging.basicConfig(level=logging.INFO)

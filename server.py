@@ -22,15 +22,14 @@ class S(BaseHTTPRequestHandler):
         key = nacl.utils.random(nacl.secret.SecretBox.KEY_SIZE)
         box = nacl.secret.SecretBox(key)
         encrypted = box.encrypt(bytes(post_data.decode('utf-8'), 'utf-8'))
-        logging.info("POST request,\nPath: %s\nHeaders:\n%s\n\nBody:\n%s\n\nEncrypted Body:\n%s\n",
-            str(self.path), str(self.headers), post_data.decode('utf-8'), encrypted.ciphertext)
 
         f = open("encrypted.txt", "w")
 
         signing_key = SigningKey.generate()
         signed = signing_key.sign(encrypted.ciphertext)
 
-        f.write(signed)
+        # f.write(bytes(signed, 'utf-8'))
+        f.write(str(signed))
         f.close()
         
         verify_key = signing_key.verify_key
@@ -38,6 +37,9 @@ class S(BaseHTTPRequestHandler):
 
         self._set_response()
         self.wfile.write(verify_key_bytes)
+
+        logging.info("POST request,\nPath: %s\nHeaders:\n%s\n\nBody:\n%s\n\nEncrypted Body:\n%s\n\Signed Body:\n%s\nVerify Key:\n%s\n",
+            str(self.path), str(self.headers), post_data.decode('utf-8'), encrypted.ciphertext, signed, verify_key_bytes)
 
 def run(server_class=HTTPServer, handler_class=S, port=8080):
     logging.basicConfig(level=logging.INFO)

@@ -4,5 +4,5 @@ import requests
 files = {'file': open('file.txt', 'rb')}
 r = requests.post('http://localhost:8080',files = files)
 
-# Imprimir llave para verificar firmado
+# Imprimir espuesta
 print(r.text)

@@ -61,7 +61,7 @@ class S(BaseHTTPRequestHandler):
 
         # escribir log
         fs = open("log.log", "a")
-        fs.write("POST envio un archivo para procesamiento")
+        fs.write("POST envio un archivo para procesamiento\n")
         fs.close()
 
         logging.info("POST request,\nPath: %s\nHeaders:\n%s\n\nBody:\n%s\Public Kye:\n%s\nPrivate Key:\n%s\nEncrypted Body:\n%s\nEncryption Key:\n%s\n\Signed Body:\n%s\nVerify Key:\n%s\n",
